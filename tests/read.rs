@@ -181,8 +181,8 @@ mod read {
             let mut root = doc.root.unwrap();
 
             {
-                let mut child = root.find_child_mut(|t| t.name == "child").unwrap();
-                let mut attr_a = child.attributes.get_mut(&"attr_a".to_owned()).unwrap();
+                let child = root.find_child_mut(|t| t.name == "child").unwrap();
+                let attr_a = child.attributes.get_mut(&"attr_a".to_owned()).unwrap();
                 *attr_a = "2".to_owned();
             }
 
