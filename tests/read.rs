@@ -23,21 +23,19 @@ mod read {
         }
 
         #[test]
-        #[should_panic(expected = "Unexpected end of stream: no root element found")]
         fn empty() {
             let doc_raw = "";
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
         }
 
         #[test]
-        #[should_panic(expected = "Unexpected end of stream: no root element found")]
         fn no_root_tag() {
 
             let doc_raw = r#"
             <?xml version="1.1" encoding="UTF-8"?>
             "#;
 
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
 
         }
 
@@ -74,38 +72,35 @@ mod read {
         }
 
         #[test]
-        #[should_panic(expected = "Unexpected closing tag: not_root, expected root")]
         fn mismatched_close() {
 
             let doc_raw = r#"
             <root></not_root>
             "#;
 
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
 
         }
 
         #[test]
-        #[should_panic(expected = "Unexpected closing tag: ROOT, expected root")]
         fn mismatched_case_close() {
 
             let doc_raw = r#"
             <root></ROOT>
             "#;
 
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
 
         }
 
         #[test]
-        #[should_panic(expected = "Unexpected end of stream: still inside the root element")]
         fn unclosed_root() {
 
             let doc_raw = r#"
             <root>
             "#;
 
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
 
         }
 
@@ -312,17 +307,15 @@ mod read {
         use treexml::Document;
 
         #[test]
-        #[should_panic(expected = "Unexpected token")]
         fn transposed_exclamation() {
             let doc_raw = "<root><[!CDATA[data]]></root>";
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
         }
 
         #[test]
-        #[should_panic(expected = "Unexpected token")]
         fn no_opening_square_bracket() {
             let doc_raw = "<root><!CDATA[data]]></root>";
-            let _ = Document::parse(doc_raw.as_bytes()).unwrap();
+            let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
         }
 
         #[test]
