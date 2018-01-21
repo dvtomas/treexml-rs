@@ -1,19 +1,26 @@
-use xml;
+extern crate std;
+extern crate xml;
 
-error_chain!{
-    errors {
-        ElementNotFound(t: String) {
-            description("Path returned no elements")
-            display("Element not found: '{}'", t)
-        }
-        ValueFromStr(t: String) {
-            description("Error parsing value")
-            display("Value could not be parsed: '{}'", t)
+#[derive(Debug, Fail)]
+pub enum Error {
+    #[fail(display = "Element not found: '{}'", t)] ElementNotFound { t: String },
+    #[fail(display = "Value could not be parsed: '{}'", t)] ValueFromStr { t: String },
+    #[fail(display = "Parse error: '{}'", what)] ParseError { what: String },
+    #[fail(display = "Write error: '{}'", what)] WriteError { what: String },
+}
+
+impl From<xml::reader::Error> for Error {
+    fn from(v: xml::reader::Error) -> Self {
+        Error::ParseError {
+            what: std::error::Error::description(&v).into(),
         }
     }
+}
 
-    foreign_links {
-        ParseError(xml::reader::Error);
-        WriteError(xml::writer::Error);
+impl From<xml::writer::Error> for Error {
+    fn from(v: xml::writer::Error) -> Self {
+        Error::WriteError {
+            what: std::error::Error::description(&v).into(),
+        }
     }
 }
