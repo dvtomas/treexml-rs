@@ -8,7 +8,6 @@ mod read {
 
         #[test]
         fn no_xml_tag() {
-
             let doc_raw = r#"
             <root>
                 <child></child>
@@ -19,7 +18,6 @@ mod read {
 
             assert_eq!(doc.version, XmlVersion::Version10);
             assert_eq!(doc.encoding, "UTF-8".to_owned());
-
         }
 
         #[test]
@@ -30,13 +28,11 @@ mod read {
 
         #[test]
         fn no_root_tag() {
-
             let doc_raw = r#"
             <?xml version="1.1" encoding="UTF-8"?>
             "#;
 
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
-
         }
 
     }
@@ -47,7 +43,6 @@ mod read {
 
         #[test]
         fn self_closing() {
-
             let doc_raw = r#"
             <root>
                 <child />
@@ -55,12 +50,10 @@ mod read {
             "#;
 
             let _ = Document::parse(doc_raw.as_bytes()).unwrap();
-
         }
 
         #[test]
         fn self_closing_no_space() {
-
             let doc_raw = r#"
             <root>
                 <child/>
@@ -68,40 +61,33 @@ mod read {
             "#;
 
             let _ = Document::parse(doc_raw.as_bytes()).unwrap();
-
         }
 
         #[test]
         fn mismatched_close() {
-
             let doc_raw = r#"
             <root></not_root>
             "#;
 
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
-
         }
 
         #[test]
         fn mismatched_case_close() {
-
             let doc_raw = r#"
             <root></ROOT>
             "#;
 
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
-
         }
 
         #[test]
         fn unclosed_root() {
-
             let doc_raw = r#"
             <root>
             "#;
 
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
-
         }
 
     }
@@ -121,12 +107,10 @@ mod read {
             let root = doc.root.unwrap();
 
             assert_eq!(root.find_child(|t| t.name == "child"), None);
-
         }
 
         #[test]
         fn find_child_one() {
-
             let doc_raw = r#"
             <root>
                 <child attr_a="1" />
@@ -140,12 +124,10 @@ mod read {
             child.attributes.insert("attr_a".to_owned(), "1".to_owned());
 
             assert_eq!(root.find_child(|t| t.name == "child"), Some(&child));
-
         }
 
         #[test]
         fn find_child_many() {
-
             let doc_raw = r#"
             <root>
                 <child attr_a="1" />
@@ -160,12 +142,10 @@ mod read {
             child.attributes.insert("attr_a".to_owned(), "1".to_owned());
 
             assert_eq!(root.find_child(|t| t.name == "child"), Some(&child));
-
         }
 
         #[test]
         fn find_child_mut_one() {
-
             let doc_raw = r#"
             <root>
                 <child attr_a="1" />
@@ -185,12 +165,10 @@ mod read {
             child.attributes.insert("attr_a".to_owned(), "2".to_owned());
 
             assert_eq!(root.find_child(|t| t.name == "child"), Some(&child));
-
         }
 
         #[test]
         fn filter_children() {
-
             let doc_raw = r#"
             <root>
                 <child>1</child>
@@ -210,12 +188,10 @@ mod read {
             let children_ref = vec![&ch1, &ch2];
 
             assert_eq!(children, children_ref);
-
         }
 
         #[test]
         fn filter_children_mut() {
-
             let doc_raw = r#"
             <root>
                 <child>1</child>
@@ -242,12 +218,10 @@ mod read {
             let children_ref = vec![&ch1, &ch2];
 
             assert_eq!(children, children_ref);
-
         }
 
         #[test]
         fn find() {
-
             let doc_raw = r#"
             <root>
                 <a>
@@ -278,7 +252,6 @@ mod read {
 
         #[test]
         fn find_value() {
-
             let doc_raw = r#"
             <root>
                 <number>2</number>
@@ -320,19 +293,16 @@ mod read {
 
         #[test]
         fn plain_text() {
-
             let doc_raw = "<root><![CDATA[data]]></root>";
 
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
             let root = doc.root.unwrap();
 
             assert_eq!(root.cdata.unwrap(), "data".to_owned());
-
         }
 
         #[test]
         fn nested_tags() {
-
             let doc_raw = "<root><![CDATA[ <tag /> ]]></root>";
 
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
@@ -340,12 +310,10 @@ mod read {
 
             assert!(root.children.is_empty());
             assert_eq!(root.cdata.unwrap(), " <tag /> ".to_owned());
-
         }
 
         #[test]
         fn text_across_cdata() {
-
             let doc_raw = "<root>text<![CDATA[cdata]]>text</root>";
 
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
@@ -363,7 +331,6 @@ mod read {
 
         #[test]
         fn parse_document() {
-
             let doc_raw = r#"
             <?xml version="1.1" encoding="UTF-8"?>
             <root>
@@ -404,7 +371,6 @@ mod read {
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
 
             assert_eq!(doc, doc_ref);
-
         }
 
     }
