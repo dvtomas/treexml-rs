@@ -4,12 +4,12 @@ mod write {
 
     mod document {
 
-        use treexml::{Document, Element};
+        use treexml::{Document, Element, Node};
 
         #[test]
         fn simple_document() {
             let mut root = Element::new("root");
-            let child = Element::new("child");
+            let child = Node::Element(Element::new("child"));
             root.children.push(child);
 
             let doc = Document {
@@ -30,7 +30,7 @@ mod write {
         #[test]
         fn condensed_document() {
             let mut root = Element::new("root");
-            let child = Element::new("child");
+            let child = Node::Element(Element::new("child"));
             root.children.push(child);
 
             let doc = Document {
@@ -51,12 +51,12 @@ mod write {
 
     mod element {
 
-        use treexml::{Document, Element};
+        use treexml::{Document, Element, Node};
 
         #[test]
         fn stringify() {
             let mut root = Element::new("root");
-            let child = Element::new("child");
+            let child = Node::Element(Element::new("child"));
             let child2 = Element::new("child").clone();
             root.children.push(child);
 
@@ -74,12 +74,12 @@ mod write {
 
     mod contents {
 
-        use treexml::{Document, Element};
+        use treexml::{Document, Element, Node};
 
         #[test]
         fn plain_text() {
             let mut root = Element::new("root");
-            root.text = Some("text".to_owned());
+            root.children.push(Node::Text("text".to_owned()));
 
             let doc = Document {
                 root: Some(root),
@@ -97,7 +97,7 @@ mod write {
         #[test]
         fn tags_in_text() {
             let mut root = Element::new("root");
-            root.text = Some("<tag />".to_owned());
+            root.children.push(Node::Text("<tag />".to_owned()));
 
             let doc = Document {
                 root: Some(root),
@@ -116,12 +116,12 @@ mod write {
 
     mod cdata {
 
-        use treexml::{Document, Element};
+        use treexml::{Document, Element, Node};
 
         #[test]
         fn plain_text() {
             let mut root = Element::new("root");
-            root.cdata = Some("data".to_owned());
+            root.children.push(Node::CData("data".to_owned()));
 
             let doc = Document {
                 root: Some(root),
@@ -139,7 +139,7 @@ mod write {
         #[test]
         fn nested_tags() {
             let mut root = Element::new("root");
-            root.cdata = Some("<tag />".to_owned());
+            root.children.push(Node::CData("<tag />".to_owned()));
 
             let doc = Document {
                 root: Some(root),
@@ -167,7 +167,7 @@ mod write {
                 E::new("list").children(vec![
                     &mut preexisting.into(),
                     &mut E::new("child"),
-                    E::new("child").attr("class", "foo").text("bar"),
+                    E::new("child").attr("class", "foo").comment("Comment").text("bar"),
                     E::new("child").attr("class", 22).text(11),
                 ]),
             ]));
@@ -178,7 +178,8 @@ mod write {
                 "  <list>\n",
                 "    <preexisting />\n",
                 "    <child />\n",
-                "    <child class=\"foo\">bar</child>\n",
+                "    <child class=\"foo\">\n",
+                "      <!-- Comment -->bar</child>\n",
                 "    <child class=\"22\">11</child>\n",
                 "  </list>\n",
                 "</root>"

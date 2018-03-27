@@ -1,9 +1,7 @@
 extern crate treexml;
 
 mod read {
-
     mod document {
-
         use treexml::{Document, XmlVersion};
 
         #[test]
@@ -34,11 +32,9 @@ mod read {
 
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
         }
-
     }
 
     mod tags {
-
         use treexml::Document;
 
         #[test]
@@ -89,11 +85,10 @@ mod read {
 
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
         }
-
     }
 
     mod element {
-        use treexml::{Document, Element, Error};
+        use treexml::{Document, Element, Error, Node};
 
         #[test]
         fn find_child_none() {
@@ -179,8 +174,8 @@ mod read {
 
             let mut ch1 = Element::new("child");
             let mut ch2 = Element::new("child");
-            ch1.text = Some("1".to_owned());
-            ch2.text = Some("2".to_owned());
+            ch1.children.push(Node::Text("1".to_owned()));
+            ch2.children.push(Node::Text("2".to_owned()));
 
             let children: Vec<&Element> = root.filter_children(|t| t.name == "child").collect();
             let children_ref = vec![&ch1, &ch2];
@@ -192,8 +187,8 @@ mod read {
         fn filter_children_mut() {
             let doc_raw = r#"
             <root>
-                <child>1</child>
-                <child>2</child>
+                <child></child>
+                <child></child>
             </root>
             "#;
 
@@ -203,14 +198,14 @@ mod read {
             {
                 let mut children: Vec<&mut Element> =
                     root.filter_children_mut(|t| t.name == "child").collect();
-                children[0].text = Some("4".to_owned());
-                children[1].text = Some("5".to_owned());
+                children[0].children.push(Node::Text("4".to_owned()));
+                children[1].children.push(Node::Text("5".to_owned()));
             }
 
             let mut ch1 = Element::new("child");
             let mut ch2 = Element::new("child");
-            ch1.text = Some("4".to_owned());
-            ch2.text = Some("5".to_owned());
+            ch1.children.push(Node::Text("4".to_owned()));
+            ch2.children.push(Node::Text("5".to_owned()));
 
             let children: Vec<&Element> = root.filter_children(|t| t.name == "child").collect();
             let children_ref = vec![&ch1, &ch2];
@@ -237,12 +232,12 @@ mod read {
             let root = doc.root.unwrap();
 
             let mut leaf = Element::new("leaf");
-            leaf.text = Some("1".to_owned());
+            leaf.children.push(Node::Text("1".to_owned()));
 
             assert_eq!(root.find("a/deep/tree/leaf").unwrap(), &leaf);
 
             match root.find("z").expect_err("Should have errored") {
-                Error::ElementNotFound { .. } => {},
+                Error::ElementNotFound { .. } => {}
                 _ => panic!("Error should have been ElementNotFound"),
             }
         }
@@ -266,15 +261,14 @@ mod read {
             let cant_parse = root.find_value::<i32>("word");
             println!("cant parse was {:?}", cant_parse);
             match cant_parse.expect_err("Should have errored") {
-                Error::ValueFromStr { .. } => {},
+                Error::ValueFromStr { .. } => {}
                 _ => panic!("Error should have been ValueFromStr"),
             }
         }
     }
 
     mod cdata {
-
-        use treexml::Document;
+        use treexml::{Document, Element, Node};
 
         #[test]
         fn transposed_exclamation() {
@@ -288,6 +282,17 @@ mod read {
             let _ = Document::parse(doc_raw.as_bytes()).expect_err("Should have errored");
         }
 
+        fn get_cdata(element: &Element) -> String {
+            let mut result = String::new();
+            for node in &element.children {
+                match node {
+                    &Node::CData(ref t) => result.push_str(t.as_str()),
+                    _ => {}
+                }
+            }
+            result
+        }
+
         #[test]
         fn plain_text() {
             let doc_raw = "<root><![CDATA[data]]></root>";
@@ -295,7 +300,7 @@ mod read {
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
             let root = doc.root.unwrap();
 
-            assert_eq!(root.cdata.unwrap(), "data".to_owned());
+            assert_eq!(get_cdata(&root), "data");
         }
 
         #[test]
@@ -305,8 +310,8 @@ mod read {
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
             let root = doc.root.unwrap();
 
-            assert!(root.children.is_empty());
-            assert_eq!(root.cdata.unwrap(), " <tag /> ".to_owned());
+            assert_eq!(1, root.children.len());
+            assert_eq!(get_cdata(&root), " <tag /> ");
         }
 
         #[test]
@@ -316,15 +321,39 @@ mod read {
             let doc = Document::parse(doc_raw.as_bytes()).unwrap();
             let root = doc.root.unwrap();
 
-            assert_eq!(root.cdata, Some("cdata".to_owned()));
-            assert_eq!(root.text, Some("texttext".to_owned()));
+            assert_eq!(get_cdata(&root), "cdata");
+            assert_eq!(root.text(), Some("texttext".to_owned()));
+        }
+    }
+
+    mod comment {
+        use treexml::{Document, Element, Node};
+
+        fn get_comment(element: &Element) -> String {
+            let mut result = String::new();
+            for node in &element.children {
+                match node {
+                    &Node::Comment(ref t) => result.push_str(t.as_str()),
+                    _ => {}
+                }
+            }
+            result
+        }
+
+        #[test]
+        fn plain_text() {
+            let doc_raw = "<root><!-- Comment --></root>";
+
+            let doc = Document::parse(doc_raw.as_bytes()).unwrap();
+            let root = doc.root.unwrap();
+
+            assert_eq!(get_comment(&root), " Comment ");
         }
 
     }
 
     mod complete {
-
-        use treexml::{Document, Element, XmlVersion};
+        use treexml::{Document, Element, Node, XmlVersion};
 
         #[test]
         fn parse_document() {
@@ -333,6 +362,7 @@ mod read {
             <root>
                 <child attr_a="1">content</child>
                 <child attr_a="2"></child>
+                <!-- Comment -->
                 <child attr_a="3" />
                 <child attr_a="4"><![CDATA[foo]]></child>
             </root>
@@ -342,7 +372,7 @@ mod read {
 
             let mut c1 = Element::new("child");
             c1.attributes.insert("attr_a".to_owned(), "1".to_owned());
-            c1.text = Some("content".to_owned());
+            c1.children.push(Node::Text("content".to_owned()));
 
             let mut c2 = Element::new("child");
             c2.attributes.insert("attr_a".to_owned(), "2".to_owned());
@@ -352,12 +382,13 @@ mod read {
 
             let mut c4 = Element::new("child");
             c4.attributes.insert("attr_a".to_owned(), "4".to_owned());
-            c4.cdata = Some("foo".to_owned());
+            c4.children.push(Node::CData("foo".to_owned()));
 
-            root.children.push(c1);
-            root.children.push(c2);
-            root.children.push(c3);
-            root.children.push(c4);
+            root.children.push(Node::Element(c1));
+            root.children.push(Node::Element(c2));
+            root.children.push(Node::Comment(" Comment ".to_string()));
+            root.children.push(Node::Element(c3));
+            root.children.push(Node::Element(c4));
 
             let doc_ref = Document {
                 version: XmlVersion::Version11,
@@ -369,7 +400,5 @@ mod read {
 
             assert_eq!(doc, doc_ref);
         }
-
     }
-
 }
