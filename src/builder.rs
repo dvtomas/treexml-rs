@@ -62,21 +62,32 @@ impl ElementBuilder {
         self
     }
 
-    /// Append element children to this `Element`
+    /// Append element children
     pub fn children(&mut self, children: Vec<&ElementBuilder>) -> &mut ElementBuilder {
-        self.element.children.append(&mut children.into_iter().map(|i| Node::Element(i.element())).collect());
+        self.element.children.append(&mut children.into_iter().map(|builder| Node::Element(builder.element())).collect());
         self
     }
 
-    /// Append element children to this `Element`
+    /// Append element children
+    pub fn children_elements(&mut self, children: Vec<Element>) -> &mut ElementBuilder {
+        self.element.children.extend(children.into_iter().map(Node::Element));
+        self
+    }
+
+    /// Append nodes
     pub fn children_nodes(&mut self, mut children: Vec<Node>) -> &mut ElementBuilder {
         self.element.children.append(&mut children);
         self
     }
 
-    /// Creates an `Element` from the builder
+    /// Clones an `Element` from the builder, consuming the builder
     pub fn element(&self) -> Element {
         self.element.clone()
+    }
+
+    /// Builds an `Element` from this builder
+    pub fn build(self) -> Element {
+        self.element
     }
 }
 
