@@ -241,7 +241,7 @@ impl Element {
     }
 
     /// Write an element and its contents to `writer`
-    fn write<W: Write>(&self, writer: &mut xml::writer::EventWriter<W>) -> Result<(), Error> {
+    pub fn write<W: Write>(&self, writer: &mut xml::writer::EventWriter<W>) -> Result<(), Error> {
         use xml::attribute::Attribute;
         use xml::name::Name;
         use xml::namespace::Namespace;
