@@ -1,14 +1,14 @@
 [package]
 name = "treexml"
-version = "0.6.2"
+version = "0.7.0"
 description = "An XML tree library for Rust"
 keywords = ["xml", "parse", "tree"]
-repository = "https://github.com/rahulg/treexml-rs"
+repository = "https://github.com/dvtomas/treexml-rs"
 documentation = "https://docs.rs/treexml/"
 readme = "README.md"
 license = "MIT"
 authors = ["Rahul AG <r@hul.ag>"]
 
 [dependencies]
-xml-rs = "0.6"
+xml-rs = "0"
 failure = "*"

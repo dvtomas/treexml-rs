@@ -7,9 +7,11 @@
 Like most `rust` packages, `treexml` uses [cargo](http://crates.io).
 To use `treexml`, add the following to your project's `Cargo.toml`
 
+This is a version modified by Tomáš Dvořák, currently available as a github dependency only. See issue #10 to see the reasons for modification.
+
 ```toml
 [dependencies]
-treexml = "0.6"
+treexml = {git = "https://github.com/dvtomas/treexml-rs"}
 ```
 
 The package exposes a crate named `treexml`.
