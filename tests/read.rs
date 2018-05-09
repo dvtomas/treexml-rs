@@ -243,6 +243,40 @@ mod read {
         }
 
         #[test]
+        fn find_mut() {
+            let doc_raw = r#"
+            <root>
+                <a>
+                    <deep>
+                        <tree>
+                            <leaf>1</leaf>
+                        </tree>
+                    </deep>
+                </a>
+                <child>2</child>
+            </root>
+            "#;
+
+            let doc = Document::parse(doc_raw.as_bytes()).unwrap();
+            let mut root = doc.root.unwrap();
+
+            let mut leaf = Element::new("leaf");
+            leaf.children.push(Node::Text("1".to_owned()));
+
+            {
+                let found_leaf = root.find_mut("a/deep/tree/leaf").unwrap();
+                assert_eq!(found_leaf, &leaf);
+                found_leaf.children.push(Node::Text("2".to_owned()));
+            }
+            assert_eq!(root.find("a/deep/tree/leaf").unwrap().text().unwrap(), "12");
+
+            match root.find_mut("z").expect_err("Should have errored") {
+                Error::ElementNotFound { .. } => {}
+                _ => panic!("Error should have been ElementNotFound"),
+            }
+        }
+
+        #[test]
         fn find_value() {
             let doc_raw = r#"
             <root>
@@ -349,7 +383,6 @@ mod read {
 
             assert_eq!(get_comment(&root), " Comment ");
         }
-
     }
 
     mod complete {

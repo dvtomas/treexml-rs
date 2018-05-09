@@ -307,6 +307,11 @@ impl Element {
         Self::find_path(&path.split('/').collect::<Vec<&str>>(), path, self)
     }
 
+    /// Traverse element using an xpath-like string: root/child/a
+    pub fn find_mut(&mut self, path: &str) -> Result<&mut Element, Error> {
+        Self::find_path_mut(&path.split('/').collect::<Vec<&str>>(), path, self)
+    }
+
     pub fn find_value<T: FromStr>(&self, path: &str) -> Result<Option<T>, Error> {
         let el = self.find(path)?;
         match el.text() {
@@ -329,6 +334,17 @@ impl Element {
 
         match tree.find_child(|t| t.name == path[0]) {
             Some(element) => Self::find_path(&path[1..], original, element),
+            None => Err(errors::Error::ElementNotFound { t: original.into() }.into()),
+        }
+    }
+
+    fn find_path_mut<'a>(path: &[&str], original: &str, tree: &'a mut Element) -> Result<&'a mut Element, Error> {
+        if path.is_empty() {
+            return Ok(tree);
+        }
+
+        match tree.find_child_mut(|t| t.name == path[0]) {
+            Some(element) => Self::find_path_mut(&path[1..], original, element),
             None => Err(errors::Error::ElementNotFound { t: original.into() }.into()),
         }
     }
