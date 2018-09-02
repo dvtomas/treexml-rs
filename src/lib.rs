@@ -327,7 +327,11 @@ impl Element {
         }
     }
 
-    fn find_path<'a>(path: &[&str], original: &str, tree: &'a Element) -> Result<&'a Element, Error> {
+    fn find_path<'a>(
+        path: &[&str],
+        original: &str,
+        tree: &'a Element,
+    ) -> Result<&'a Element, Error> {
         if path.is_empty() {
             return Ok(tree);
         }
