@@ -69,6 +69,12 @@ impl ElementBuilder {
     }
 
     /// Append element children
+    pub fn children_from_iter(&mut self, children: impl IntoIterator<Item=ElementBuilder>) -> &mut ElementBuilder {
+        self.element.children.extend(children.into_iter().map(|builder| Node::Element(builder.build())));
+        self
+    }
+
+    /// Append element children
     pub fn children_elements(&mut self, children: Vec<Element>) -> &mut ElementBuilder {
         self.element.children.extend(children.into_iter().map(Node::Element));
         self
