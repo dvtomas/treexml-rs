@@ -44,26 +44,25 @@
 
 #[macro_use]
 extern crate failure;
-
-mod errors;
-
+extern crate linked_hash_map;
 extern crate xml;
 
-mod builder;
-
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::fmt;
 use std::io::{Read, Write};
 use std::iter::Filter;
 use std::str::FromStr;
 use std::string::ToString;
 
-pub use errors::*;
+use linked_hash_map::LinkedHashMap;
+use xml::common::XmlVersion as BaseXmlVersion;
 
 pub use builder::*;
+pub use errors::*;
 
-use xml::common::XmlVersion as BaseXmlVersion;
+mod errors;
+
+mod builder;
 
 /// Enumeration of XML versions
 ///
@@ -110,7 +109,7 @@ pub struct Element {
     /// Tag name: `for-each` in `xsl:for-each`
     pub name: String,
     /// Tag attributes
-    pub attributes: HashMap<String, String>,
+    pub attributes: LinkedHashMap<String, String>,
     /// A vector of child elements
     pub children: Vec<Node>,
 }
@@ -120,7 +119,7 @@ impl Default for Element {
         Element {
             prefix: None,
             name: "tag".to_owned(),
-            attributes: HashMap::new(),
+            attributes: LinkedHashMap::new(),
             children: Vec::new(),
         }
     }
@@ -197,7 +196,7 @@ impl Element {
                 XmlEvent::StartElement {
                     name, attributes, ..
                 } => {
-                    let mut attr_map = HashMap::new();
+                    let mut attr_map = LinkedHashMap::new();
                     for attr in attributes {
                         let attr_name = match attr.name.prefix {
                             Some(prefix) => format!("{}:{}", prefix, attr.name.local_name),
@@ -441,7 +440,7 @@ impl Document {
                 } => {
                     // Start of the root element
 
-                    let mut attr_map = HashMap::new();
+                    let mut attr_map = LinkedHashMap::new();
                     for attr in attributes {
                         let attr_name = match attr.name.prefix {
                             Some(prefix) => format!("{}:{}", prefix, attr.name.local_name),

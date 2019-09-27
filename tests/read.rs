@@ -349,7 +349,6 @@ mod read {
 
             assert_eq!(get_comment(&root), " Comment ");
         }
-
     }
 
     mod complete {

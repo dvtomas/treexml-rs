@@ -12,3 +12,4 @@ authors = ["Rahul AG <r@hul.ag>"]
 [dependencies]
 xml-rs = "0"
 failure = "*"
+linked-hash-map = "0"
