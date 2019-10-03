@@ -1,12 +1,25 @@
 extern crate std;
 extern crate xml;
 
-#[derive(Debug, Fail)]
+use std::fmt;
+
+#[derive(Debug)]
 pub enum Error {
-    #[fail(display = "Element not found: '{}'", t)] ElementNotFound { t: String },
-    #[fail(display = "Value could not be parsed: '{}'", t)] ValueFromStr { t: String },
-    #[fail(display = "Parse error: '{}'", what)] ParseError { what: String },
-    #[fail(display = "Write error: '{}'", what)] WriteError { what: String },
+    ElementNotFound { t: String },
+    ValueFromStr { t: String },
+    ParseError { what: String },
+    WriteError { what: String },
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            Error::ElementNotFound { t } => write!(f, "Element not found: '{}'", t),
+            Error::ValueFromStr { t } => write!(f, "Value could not be parsed: '{}'", t),
+            Error::ParseError { what } => write!(f, "Parse error: '{}'", what),
+            Error::WriteError { what } => write!(f, "Write error: '{}'", what),
+        }
+    }
 }
 
 impl From<xml::reader::Error> for Error {

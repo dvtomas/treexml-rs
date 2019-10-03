@@ -42,9 +42,6 @@
 //!
 //!
 
-#[macro_use]
-extern crate failure;
-
 mod errors;
 
 extern crate xml;

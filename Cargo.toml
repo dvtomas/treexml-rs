@@ -11,4 +11,3 @@ authors = ["Rahul AG <r@hul.ag>"]
 
 [dependencies]
 xml-rs = "0"
-failure = "*"
