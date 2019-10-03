@@ -1,14 +1,13 @@
-extern crate std;
-extern crate xml;
-
 use std::fmt;
+
+use xml;
 
 #[derive(Debug)]
 pub enum Error {
     ElementNotFound { t: String },
     ValueFromStr { t: String },
-    ParseError { what: String },
-    WriteError { what: String },
+    ParseError { what: xml::reader::Error },
+    WriteError { what: xml::writer::Error },
 }
 
 impl fmt::Display for Error {
@@ -24,16 +23,12 @@ impl fmt::Display for Error {
 
 impl From<xml::reader::Error> for Error {
     fn from(v: xml::reader::Error) -> Self {
-        Error::ParseError {
-            what: std::error::Error::description(&v).into(),
-        }
+        Error::ParseError { what: v.into() }
     }
 }
 
 impl From<xml::writer::Error> for Error {
     fn from(v: xml::writer::Error) -> Self {
-        Error::WriteError {
-            what: std::error::Error::description(&v).into(),
-        }
+        Error::WriteError { what: v.into() }
     }
 }
