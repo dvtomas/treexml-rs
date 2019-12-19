@@ -301,12 +301,20 @@ impl Element {
 
     /// Traverse element using an xpath-like string: root/child/a
     pub fn find(&self, path: &str) -> Result<&Element, Error> {
-        Self::find_path(&path.split('/').collect::<Vec<&str>>(), path, self)
+        if path == "" || path == "/" {
+            Ok(self)
+        } else {
+            Self::find_path(&path.split('/').collect::<Vec<&str>>(), path, self)
+        }
     }
 
     /// Traverse element using an xpath-like string: root/child/a
     pub fn find_mut(&mut self, path: &str) -> Result<&mut Element, Error> {
-        Self::find_path_mut(&path.split('/').collect::<Vec<&str>>(), path, self)
+        if path == "" || path == "/" {
+            Ok(self)
+        } else {
+            Self::find_path_mut(&path.split('/').collect::<Vec<&str>>(), path, self)
+        }
     }
 
     pub fn find_value<T: FromStr>(&self, path: &str) -> Result<Option<T>, Error> {

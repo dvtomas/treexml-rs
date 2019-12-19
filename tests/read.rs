@@ -235,6 +235,8 @@ mod read {
             leaf.children.push(Node::Text("1".to_owned()));
 
             assert_eq!(root.find("a/deep/tree/leaf").unwrap(), &leaf);
+            assert_eq!(root.find("/").unwrap(), &root);
+            assert_eq!(root.find("").unwrap(), &root);
 
             match root.find("z").expect_err("Should have errored") {
                 Error::ElementNotFound { .. } => {}
@@ -262,6 +264,11 @@ mod read {
 
             let mut leaf = Element::new("leaf");
             leaf.children.push(Node::Text("1".to_owned()));
+
+            {
+                assert_eq!(root.find_mut("/").unwrap().name, "root");
+                assert_eq!(root.find_mut("").unwrap().name, "root");
+            }
 
             {
                 let found_leaf = root.find_mut("a/deep/tree/leaf").unwrap();
